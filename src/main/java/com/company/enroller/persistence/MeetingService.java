@@ -63,9 +63,16 @@ public class MeetingService {
 		transaction.commit();
 	}
 
-	/*public void removeParticipant(Participant participant) {
-		this.participants.remove(participant);
-	}*/
+	public void removeParticipant(Long meetingId, String participantLogin) {
+		var meeting = this.session.load(Meeting.class, meetingId);
+		var participant = this.session.load(Participant.class, participantLogin);
+
+		Transaction transaction = this.session.beginTransaction();
+		meeting.removeParticipant(participant);
+
+		this.session.update(meeting);
+		transaction.commit();
+	}
 
 	public Collection<Participant> getParticipants(Long meetingId) {
 		var meeting = this.session.load(Meeting.class, meetingId);

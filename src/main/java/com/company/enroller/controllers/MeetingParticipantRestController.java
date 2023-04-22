@@ -60,15 +60,31 @@ public class MeetingParticipantRestController {
         return new ResponseEntity<Meeting>(HttpStatus.CREATED);
     }
 
-//    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-//    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-//       Meeting meeting = meetingService.findById(id);
-//       if (meeting == null) {
-//            return new ResponseEntity(HttpStatus.NOT_FOUND);
-//        }
-//        meetingService.delete(id);
-//       return new ResponseEntity<Meeting>(HttpStatus.OK);
-//    }
+    @RequestMapping(value = "", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeParticipantFromMeeting(@RequestParam(value = "meetingId", defaultValue = "") Long meetingId,
+                                                          @RequestParam(value = "participantLogin", defaultValue = "") String participantLogin) {
+
+        var meeting = meetingService.findById(meetingId);
+        if (meeting == null) {
+            return new ResponseEntity<String>(
+                    "Unable to remove. A meeting with id " + meetingId + " not exist.",
+                    HttpStatus.BAD_REQUEST);
+        }
+        var participant = participantService.findByLogin(participantLogin);
+        if (participant == null) {
+            return new ResponseEntity<String>(
+                    "Unable to remove. A participant with login " + participantLogin + " not exist.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        if (!checkIfParticipantInMeeting(meeting, participant)) {
+            return new ResponseEntity<String>(
+                    "Unable to remove. User with login " + participantLogin + " wasn't added to meeting with id " + meetingId,
+                    HttpStatus.CONFLICT);
+        }
+        meetingService.removeParticipant(meetingId, participantLogin);
+        return new ResponseEntity<Meeting>(HttpStatus.OK);
+    }
 
     private boolean checkIfParticipantInMeeting(Meeting meeting, Participant participant){
         return meeting.getParticipants().contains(participant);
