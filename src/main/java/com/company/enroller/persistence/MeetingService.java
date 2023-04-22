@@ -31,4 +31,23 @@ public class MeetingService {
 		this.session.save(meeting);
 		transaction.commit();
 	}
+
+	public void delete(long id) {
+		Transaction transaction = this.session.beginTransaction();
+		var meeting = this.session.load(Meeting.class, id);
+		this.session.delete(meeting);
+		transaction.commit();
+	}
+
+	public void update(Meeting updatedMeeting) {
+		Transaction transaction = this.session.beginTransaction();
+		var meeting = this.session.load(Meeting.class, updatedMeeting.getId());
+
+		meeting.setDate(updatedMeeting.getDate());
+		meeting.setDescription(updatedMeeting.getDescription());
+		meeting.setTitle(updatedMeeting.getTitle());
+
+		this.session.update(meeting);
+		transaction.commit();
+	}
 }
